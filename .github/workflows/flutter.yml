@@ -69,6 +69,12 @@ jobs:
           name: otzaria.msix
           path: build/windows/x64/runner/release/*.msix
 
+      - name: Upload full Windows build folder
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build-folder
+          path: build/windows/
+
   build_linux:
     runs-on: ubuntu-latest
     steps:
