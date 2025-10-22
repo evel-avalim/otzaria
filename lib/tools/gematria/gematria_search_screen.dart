@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 import 'gematria_search.dart';
 import 'package:otzaria/utils/open_book.dart';
+import '../../models/books.dart';
 
 class GematriaSearchScreen extends StatefulWidget {
   const GematriaSearchScreen({super.key});
@@ -493,13 +494,13 @@ class GematriaSearchScreenState extends State<GematriaSearchScreen> {
 }
 
 class GematriaSearchResult {
-  final Book book; // אובייקט הספר
-  final int pageIndex; // אינדקס העמוד
-  final String searchQuery; // שאילתת החיפוש
+  final Book book;
+  final int pageIndex;
+  final String searchQuery;
   final String bookTitle;
   final String internalPath;
   final String preview;
-  final dynamic data; // מידע נוסף שתרצה לשמור
+  final dynamic data;
 
   GematriaSearchResult({
     required this.book,
