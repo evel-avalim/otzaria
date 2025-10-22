@@ -421,23 +421,23 @@ class _MeasurementConverterScreenState
             ),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.all(12.0),
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   _buildCategorySelector(),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 12),
                   _buildUnitSelectors(),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 12),
                   if (_opinions.containsKey(_selectedCategory) &&
                       _opinions[_selectedCategory]!.isNotEmpty) ...[
                     _buildOpinionSelector(),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 12),
                   ],
                   _buildInputField(),
                   if (_showResultField) ...[
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 12),
                     _buildResultDisplay(),
                   ],
                 ],
@@ -470,10 +470,10 @@ class _MeasurementConverterScreenState
     final categories = ['אורך', 'שטח', 'נפח', 'משקל', 'זמן'];
 
     return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Container(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -482,20 +482,20 @@ class _MeasurementConverterScreenState
                 Icon(
                   Icons.category,
                   color: Theme.of(context).colorScheme.primary,
-                  size: 24,
+                  size: 20,
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 6),
                 Text(
                   'סוג המידה',
                   style: TextStyle(
-                    fontSize: 18,
+                    fontSize: 15,
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 10),
             LayoutBuilder(
               builder: (context, constraints) {
                 const double minButtonWidth = 80.0;
@@ -606,9 +606,9 @@ class _MeasurementConverterScreenState
                   color: isSelected
                       ? Theme.of(context).colorScheme.onPrimary
                       : Theme.of(context).colorScheme.onSurfaceVariant,
-                  size: 24,
+                  size: 20,
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 4),
                 Text(
                   category,
                   textAlign: TextAlign.center,
@@ -619,7 +619,7 @@ class _MeasurementConverterScreenState
                         ? Theme.of(context).colorScheme.onPrimary
                         : Theme.of(context).colorScheme.onSurfaceVariant,
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                    fontSize: 14.0,
+                    fontSize: 13.0,
                   ),
                 ),
               ],
@@ -632,10 +632,10 @@ class _MeasurementConverterScreenState
 
   Widget _buildUnitSelectors() {
     return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(12.0),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -651,8 +651,8 @@ class _MeasurementConverterScreenState
             ),
             Padding(
               padding: const EdgeInsets.symmetric(
-                horizontal: 8.0,
-                vertical: 24,
+                horizontal: 6.0,
+                vertical: 16,
               ),
               child: Container(
                 decoration: BoxDecoration(
@@ -721,19 +721,19 @@ class _MeasurementConverterScreenState
         color: Theme.of(context).colorScheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(12),
       ),
-      padding: const EdgeInsets.all(12.0),
+      padding: const EdgeInsets.all(10.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             label,
             style: TextStyle(
-              fontSize: 16.0,
+              fontSize: 14.0,
               fontWeight: FontWeight.bold,
               color: Theme.of(context).colorScheme.primary,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           // Ancient units rows
           if (ancientUnits.isNotEmpty) ...[
             _buildUnitsWrap(ancientUnits, selectedValue, onChanged),
@@ -814,8 +814,8 @@ class _MeasurementConverterScreenState
           child: Container(
             width: fixedWidth,
             padding: const EdgeInsets.symmetric(
-              horizontal: 12.0,
-              vertical: 10.0,
+              horizontal: 10.0,
+              vertical: 8.0,
             ),
             decoration: BoxDecoration(
               gradient: isSelected
@@ -862,7 +862,7 @@ class _MeasurementConverterScreenState
                     ? Theme.of(context).colorScheme.onPrimary
                     : Theme.of(context).colorScheme.onSurface,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                fontSize: 13.0,
+                fontSize: 12.0,
               ),
             ),
           ),
@@ -897,10 +897,10 @@ class _MeasurementConverterScreenState
     final opinions = _opinions[_selectedCategory]!;
 
     return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Container(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -909,20 +909,20 @@ class _MeasurementConverterScreenState
                 Icon(
                   Icons.school,
                   color: Theme.of(context).colorScheme.primary,
-                  size: 22,
+                  size: 18,
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 6),
                 Text(
                   'שיטה',
                   style: TextStyle(
-                    fontSize: 18.0,
+                    fontSize: 15.0,
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 10),
             LayoutBuilder(
               builder: (context, constraints) {
                 const double spacing = 10.0;
@@ -1037,8 +1037,8 @@ class _MeasurementConverterScreenState
           child: Container(
             width: minWidth,
             padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 14.0,
+              horizontal: 12.0,
+              vertical: 10.0,
             ),
             decoration: BoxDecoration(
               gradient: isSelected
@@ -1089,10 +1089,10 @@ class _MeasurementConverterScreenState
 
   Widget _buildInputField() {
     return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1101,20 +1101,20 @@ class _MeasurementConverterScreenState
                 Icon(
                   Icons.edit,
                   color: Theme.of(context).colorScheme.primary,
-                  size: 22,
+                  size: 18,
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 6),
                 Text(
                   'ערך להמרה',
                   style: TextStyle(
-                    fontSize: 18.0,
+                    fontSize: 15.0,
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             TextField(
               controller: _inputController,
               focusNode: _inputFocusNode,
@@ -1144,11 +1144,11 @@ class _MeasurementConverterScreenState
                   ),
                 ),
                 contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 16,
+                  horizontal: 14,
+                  vertical: 12,
                 ),
               ),
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
@@ -1178,8 +1178,8 @@ class _MeasurementConverterScreenState
 
   Widget _buildResultDisplay() {
     return Card(
-      elevation: 6,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -1192,9 +1192,9 @@ class _MeasurementConverterScreenState
             begin: Alignment.topRight,
             end: Alignment.bottomLeft,
           ),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(12),
         ),
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1203,23 +1203,23 @@ class _MeasurementConverterScreenState
                 Icon(
                   Icons.check_circle,
                   color: Theme.of(context).colorScheme.primary,
-                  size: 24,
+                  size: 18,
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 6),
                 Text(
                   'תוצאה',
                   style: TextStyle(
-                    fontSize: 18.0,
+                    fontSize: 15.0,
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(12),
@@ -1236,7 +1236,7 @@ class _MeasurementConverterScreenState
                 textAlign: TextAlign.right,
                 textDirection: TextDirection.ltr,
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Theme.of(context).colorScheme.primary,
                 ),
