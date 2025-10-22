@@ -412,7 +412,12 @@ class GematriaSearchScreenState extends State<GematriaSearchScreen> {
       ),
       child: InkWell(
         onTap: () {
-          // כאן תוסיף פעולה בלחיצה על התוצאה
+          openBook(
+            context,
+            result.book,
+            result.pageIndex,
+            result.searchQuery,
+          );
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(
