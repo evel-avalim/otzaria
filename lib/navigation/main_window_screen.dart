@@ -33,6 +33,9 @@ class MainWindowScreenState extends State<MainWindowScreen>
     with TickerProviderStateMixin {
   late final PageController pageController;
   Orientation? _previousOrientation;
+  // Tracks the last non-find screen so we can restore it after closing the
+  // find dialog.
+  Screen _trackedCurrentScreen = Screen.library;
 
   // Keep the pages list as templates; the actual first page (library)
   // will be built dynamically in build() to allow showing the
@@ -151,8 +154,34 @@ class MainWindowScreenState extends State<MainWindowScreen>
     if (!mounted || !context.mounted || !pageController.hasClients) {
       return;
     }
-
     if (pageController.hasClients) {
+      // If navigation requested the Find popup, show it as a dialog
+      // above the current content and then restore the previous screen.
+      if (state.currentScreen == Screen.find) {
+        final prev = _trackedCurrentScreen;
+
+        // show dialog
+        await showDialog(
+          context: context,
+          barrierDismissible: true,
+          builder: (context) => Dialog(
+            insetPadding: const EdgeInsets.symmetric(horizontal: 40, vertical: 80),
+            child: SizedBox(
+              width: 640,
+              height: 480,
+              child: const FindRefScreen(),
+            ),
+          ),
+        );
+
+        // after dialog closed, restore previous screen
+        context.read<NavigationBloc>().add(NavigateToScreen(prev));
+        return;
+      }
+
+      // Update tracked screen and animate page to the requested screen
+      _trackedCurrentScreen = state.currentScreen;
+
       final targetPage = state.currentScreen == Screen.search
           ? Screen.reading.index
           : state.currentScreen.index;
@@ -169,10 +198,6 @@ class MainWindowScreenState extends State<MainWindowScreen>
         context
             .read<FocusRepository>()
             .requestLibrarySearchFocus(selectAll: true);
-      } else if (state.currentScreen == Screen.find) {
-        context
-            .read<FocusRepository>()
-            .requestFindRefSearchFocus(selectAll: true);
       }
     }
   }
