@@ -412,35 +412,99 @@ class _MeasurementConverterScreenState
         child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
               colors: [
                 Theme.of(context).colorScheme.surface,
-                Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
+                Theme.of(context).colorScheme.surfaceContainerLowest,
+                Theme.of(context).colorScheme.surface.withValues(alpha: 0.9),
               ],
+              stops: const [0.0, 0.5, 1.0],
             ),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _buildCategorySelector(),
-                  const SizedBox(height: 12),
-                  _buildUnitSelectors(),
-                  const SizedBox(height: 12),
-                  if (_opinions.containsKey(_selectedCategory) &&
-                      _opinions[_selectedCategory]!.isNotEmpty) ...[
-                    _buildOpinionSelector(),
-                    const SizedBox(height: 12),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Header with title
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 20),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Theme.of(context).colorScheme.primary,
+                                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Icon(
+                              Icons.straighten,
+                              color: Theme.of(context).colorScheme.onPrimary,
+                              size: 28,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'ממיר מידות',
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: Theme.of(context).colorScheme.onSurface,
+                                  ),
+                                ),
+                                Text(
+                                  'המרת מידות הלכתיות ומודרניות',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    
+                    _buildCategorySelector(),
+                    const SizedBox(height: 16),
+                    _buildUnitSelectors(),
+                    const SizedBox(height: 16),
+                    if (_opinions.containsKey(_selectedCategory) &&
+                        _opinions[_selectedCategory]!.isNotEmpty) ...[
+                      _buildOpinionSelector(),
+                      const SizedBox(height: 16),
+                    ],
+                    _buildInputField(),
+                    if (_showResultField) ...[
+                      const SizedBox(height: 16),
+                      _buildResultDisplay(),
+                    ],
+                    
+                    // Bottom spacing
+                    const SizedBox(height: 20),
                   ],
-                  _buildInputField(),
-                  if (_showResultField) ...[
-                    const SizedBox(height: 12),
-                    _buildResultDisplay(),
-                  ],
-                ],
+                ),
               ),
             ),
           ),
@@ -469,84 +533,66 @@ class _MeasurementConverterScreenState
   Widget _buildCategorySelector() {
     final categories = ['אורך', 'שטח', 'נפח', 'משקל', 'זמן'];
 
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Container(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.category,
-                  color: Theme.of(context).colorScheme.primary,
-                  size: 20,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  'סוג המידה',
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            LayoutBuilder(
-              builder: (context, constraints) {
-                const double minButtonWidth = 80.0;
-                const double spacing = 10.0;
-                final double totalSpacing = spacing * (categories.length - 1);
-                final double availableWidth =
-                    constraints.maxWidth - totalSpacing;
-                final double buttonWidth = availableWidth / categories.length;
-
-                if (buttonWidth < minButtonWidth) {
-                  return Wrap(
-                    spacing: spacing,
-                    runSpacing: 10.0,
-                    children: categories
-                        .map(
-                          (category) =>
-                              _buildCategoryButton(category, minButtonWidth),
-                        )
-                        .toList(),
-                  );
-                }
-
-                return Row(
-                  children: categories.asMap().entries.map((entry) {
-                    final index = entry.key;
-                    final category = entry.value;
-                    return Expanded(
-                      child: Container(
-                        margin: EdgeInsets.only(
-                          left: index < categories.length - 1 ? spacing / 2 : 0,
-                          right: index > 0 ? spacing / 2 : 0,
-                        ),
-                        child: _buildCategoryButton(category, null),
-                      ),
-                    );
-                  }).toList(),
-                );
-              },
-            ),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
+            Theme.of(context).colorScheme.surface,
           ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          children: categories.asMap().entries.map((entry) {
+            final index = entry.key;
+            final category = entry.value;
+            return Expanded(
+              child: Container(
+                margin: EdgeInsets.symmetric(horizontal: index == 0 || index == categories.length - 1 ? 0 : 2),
+                child: _buildCategoryTabButton(category, index, categories.length),
+              ),
+            );
+          }).toList(),
         ),
       ),
     );
   }
 
-  Widget _buildCategoryButton(String category, double? minWidth) {
+  Widget _buildCategoryTabButton(String category, int index, int totalCount) {
     final isSelected = _selectedCategory == category;
+    
+    // Determine border radius based on position
+    BorderRadius borderRadius;
+    if (index == 0) {
+      borderRadius = const BorderRadius.only(
+        topLeft: Radius.circular(12),
+        bottomLeft: Radius.circular(12),
+      );
+    } else if (index == totalCount - 1) {
+      borderRadius = const BorderRadius.only(
+        topRight: Radius.circular(12),
+        bottomRight: Radius.circular(12),
+      );
+    } else {
+      borderRadius = BorderRadius.zero;
+    }
 
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeInOut,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOutCubic,
       child: Material(
         color: Colors.transparent,
         child: InkWell(
@@ -562,64 +608,80 @@ class _MeasurementConverterScreenState
               });
             }
           },
-          borderRadius: BorderRadius.circular(12.0),
-          child: Container(
-            width: minWidth,
+          borderRadius: borderRadius,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOutCubic,
             padding: const EdgeInsets.symmetric(
-              horizontal: 12.0,
-              vertical: 14.0,
+              horizontal: 8.0,
+              vertical: 12.0,
             ),
             decoration: BoxDecoration(
               gradient: isSelected
                   ? LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
                       colors: [
                         Theme.of(context).colorScheme.primary,
-                        Theme.of(
-                          context,
-                        ).colorScheme.primary.withValues(alpha: 0.8),
+                        Theme.of(context).colorScheme.primary.withValues(alpha: 0.85),
                       ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
                     )
-                  : null,
-              color: isSelected
-                  ? null
-                  : Theme.of(context).colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(12.0),
+                  : LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
+                        Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
+                      ],
+                    ),
+              borderRadius: borderRadius,
+              border: Border.all(
+                color: isSelected
+                    ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)
+                    : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                width: isSelected ? 1.5 : 0.5,
+              ),
               boxShadow: isSelected
                   ? [
                       BoxShadow(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.primary.withValues(alpha: 0.4),
+                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
                         blurRadius: 8,
-                        offset: const Offset(0, 4),
+                        offset: const Offset(0, 3),
                       ),
                     ]
-                  : null,
+                  : [],
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  _getCategoryIcon(category),
-                  color: isSelected
-                      ? Theme.of(context).colorScheme.onPrimary
-                      : Theme.of(context).colorScheme.onSurfaceVariant,
-                  size: 20,
+                AnimatedScale(
+                  scale: isSelected ? 1.1 : 1.0,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOutCubic,
+                  child: Icon(
+                    _getCategoryIcon(category),
+                    color: isSelected
+                        ? Theme.of(context).colorScheme.onPrimary
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
+                    size: 22,
+                  ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  category,
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                const SizedBox(height: 6),
+                AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOutCubic,
                   style: TextStyle(
                     color: isSelected
                         ? Theme.of(context).colorScheme.onPrimary
                         : Theme.of(context).colorScheme.onSurfaceVariant,
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                    fontSize: 13.0,
+                    fontSize: isSelected ? 13.5 : 12.5,
+                  ),
+                  child: Text(
+                    category,
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
@@ -632,70 +694,125 @@ class _MeasurementConverterScreenState
 
   Widget _buildUnitSelectors() {
     return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Theme.of(context).colorScheme.surface,
+              Theme.of(context).colorScheme.surfaceContainerLow,
+            ],
+          ),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
           children: [
-            Expanded(
-              child: _buildUnitGrid('מ', _selectedFromUnit, (val) {
-                setState(() => _selectedFromUnit = val);
-                _rememberedFromUnits[_selectedCategory] = val!;
-                _convert();
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  _screenFocusNode.requestFocus();
-                });
-              }),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 6.0,
-                vertical: 16,
-              ),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primary.withValues(alpha: 0.2),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: IconButton(
-                  icon: Icon(
-                    Icons.swap_horiz,
-                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+            // Header
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  onPressed: () {
-                    setState(() {
-                      final temp = _selectedFromUnit;
-                      _selectedFromUnit = _selectedToUnit;
-                      _selectedToUnit = temp;
-                      _convert();
-                    });
+                  child: Icon(
+                    Icons.compare_arrows,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'בחירת יחידות',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            
+            // Unit selectors
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: _buildUnitGrid('מ', _selectedFromUnit, (val) {
+                    setState(() => _selectedFromUnit = val);
+                    _rememberedFromUnits[_selectedCategory] = val!;
+                    _convert();
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       _screenFocusNode.requestFocus();
                     });
-                  },
+                  }),
                 ),
-              ),
-            ),
-            Expanded(
-              child: _buildUnitGrid('אל', _selectedToUnit, (val) {
-                setState(() => _selectedToUnit = val);
-                _rememberedToUnits[_selectedCategory] = val!;
-                _convert();
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  _screenFocusNode.requestFocus();
-                });
-              }),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8.0,
+                    vertical: 20,
+                  ),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Theme.of(context).colorScheme.primary,
+                          Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+                        ],
+                      ),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(25),
+                        onTap: () {
+                          setState(() {
+                            final temp = _selectedFromUnit;
+                            _selectedFromUnit = _selectedToUnit;
+                            _selectedToUnit = temp;
+                            _convert();
+                          });
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            _screenFocusNode.requestFocus();
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          child: Icon(
+                            Icons.swap_horiz,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            size: 24,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: _buildUnitGrid('אל', _selectedToUnit, (val) {
+                    setState(() => _selectedToUnit = val);
+                    _rememberedToUnits[_selectedCategory] = val!;
+                    _convert();
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      _screenFocusNode.requestFocus();
+                    });
+                  }),
+                ),
+              ],
             ),
           ],
         ),
@@ -897,332 +1014,58 @@ class _MeasurementConverterScreenState
     final opinions = _opinions[_selectedCategory]!;
 
     return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Container(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.school,
-                  color: Theme.of(context).colorScheme.primary,
-                  size: 18,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  'שיטה',
-                  style: TextStyle(
-                    fontSize: 15.0,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            LayoutBuilder(
-              builder: (context, constraints) {
-                const double spacing = 10.0;
-                const double padding = 16.0;
-
-                // Calculate the natural width needed for each opinion text
-                List<double> textWidths = opinions.map((opinion) {
-                  final textPainter = TextPainter(
-                    text: TextSpan(
-                      text: opinion,
-                      style: const TextStyle(
-                        fontSize: 14.0,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    textDirection: TextDirection.ltr,
-                  );
-                  textPainter.layout();
-                  return textPainter.width + (padding * 2);
-                }).toList();
-
-                final double maxTextWidth = textWidths.reduce(
-                  (a, b) => a > b ? a : b,
-                );
-                final double totalSpacing = spacing * (opinions.length - 1);
-                final double totalEqualWidth =
-                    (maxTextWidth * opinions.length) + totalSpacing;
-
-                // First preference: Try equal-width buttons if they fit
-                if (totalEqualWidth <= constraints.maxWidth) {
-                  return Row(
-                    children: opinions.asMap().entries.map((entry) {
-                      final index = entry.key;
-                      final opinion = entry.value;
-
-                      return Expanded(
-                        child: Container(
-                          margin: EdgeInsets.only(
-                            left: index < opinions.length - 1 ? spacing / 2 : 0,
-                            right: index > 0 ? spacing / 2 : 0,
-                          ),
-                          child: _buildOpinionButton(opinion, null),
-                        ),
-                      );
-                    }).toList(),
-                  );
-                }
-
-                // Second preference: Try proportional widths if natural sizes fit
-                final double totalNaturalWidth =
-                    textWidths.reduce((a, b) => a + b) + totalSpacing;
-                if (totalNaturalWidth <= constraints.maxWidth) {
-                  final double totalFlex = textWidths.reduce((a, b) => a + b);
-
-                  return Row(
-                    children: opinions.asMap().entries.map((entry) {
-                      final index = entry.key;
-                      final opinion = entry.value;
-                      final flex = (textWidths[index] / totalFlex * 1000)
-                          .round();
-
-                      return Expanded(
-                        flex: flex,
-                        child: Container(
-                          margin: EdgeInsets.only(
-                            left: index < opinions.length - 1 ? spacing / 2 : 0,
-                            right: index > 0 ? spacing / 2 : 0,
-                          ),
-                          child: _buildOpinionButton(opinion, null),
-                        ),
-                      );
-                    }).toList(),
-                  );
-                }
-
-                // Last resort: Use Wrap for multiple rows
-                return Wrap(
-                  spacing: spacing,
-                  runSpacing: 10.0,
-                  children: opinions
-                      .map((opinion) => _buildOpinionButton(opinion, null))
-                      .toList(),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildOpinionButton(String opinion, double? minWidth) {
-    final isSelected = _selectedOpinion == opinion;
-
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeInOut,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () {
-            setState(() {
-              _selectedOpinion = opinion;
-              _rememberedOpinions[_selectedCategory] = opinion;
-              _convert();
-            });
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              _screenFocusNode.requestFocus();
-            });
-          },
-          borderRadius: BorderRadius.circular(12.0),
-          child: Container(
-            width: minWidth,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 12.0,
-              vertical: 10.0,
-            ),
-            decoration: BoxDecoration(
-              gradient: isSelected
-                  ? LinearGradient(
-                      colors: [
-                        Theme.of(context).colorScheme.secondary,
-                        Theme.of(
-                          context,
-                        ).colorScheme.secondary.withValues(alpha: 0.85),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    )
-                  : null,
-              color: isSelected
-                  ? null
-                  : Theme.of(context).colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(12.0),
-              boxShadow: isSelected
-                  ? [
-                      BoxShadow(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.secondary.withValues(alpha: 0.4),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ]
-                  : null,
-            ),
-            child: Text(
-              opinion,
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              style: TextStyle(
-                color: isSelected
-                    ? Theme.of(context).colorScheme.onSecondary
-                    : Theme.of(context).colorScheme.onSurfaceVariant,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                fontSize: 14.0,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInputField() {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.edit,
-                  color: Theme.of(context).colorScheme.primary,
-                  size: 18,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  'ערך להמרה',
-                  style: TextStyle(
-                    fontSize: 15.0,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: _inputController,
-              focusNode: _inputFocusNode,
-              decoration: InputDecoration(
-                hintText: 'הזן ערך...',
-                filled: true,
-                fillColor: Theme.of(
-                  context,
-                ).colorScheme.surfaceContainerHighest,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.outline.withValues(alpha: 0.2),
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.primary,
-                    width: 2,
-                  ),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 12,
-                ),
-              ),
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
-              ],
-              onChanged: (value) {
-                setState(() {
-                  _showResultField = value.isNotEmpty;
-                });
-
-                if (value.isNotEmpty) {
-                  _rememberedInputValues[_selectedCategory] = value;
-                } else {
-                  _rememberedInputValues.remove(_selectedCategory);
-                }
-                _convert();
-              },
-              textDirection: TextDirection.ltr,
-              textAlign: TextAlign.right,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildResultDisplay() {
-    return Card(
       elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
             colors: [
-              Theme.of(context).colorScheme.primaryContainer,
-              Theme.of(
-                context,
-              ).colorScheme.primaryContainer.withValues(alpha: 0.7),
+              Theme.of(context).colorScheme.secondaryContainer.withValues(alpha: 0.3),
+              Theme.of(context).colorScheme.surface,
             ],
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
           ),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
         ),
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                Icon(
-                  Icons.check_circle,
-                  color: Theme.of(context).colorScheme.primary,
-                  size: 18,
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.secondaryContainer,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    Icons.school_outlined,
+                    color: Theme.of(context).colorScheme.onSecondaryContainer,
+                    size: 20,
+                  ),
                 ),
-                const SizedBox(width: 6),
+                const SizedBox(width: 12),
                 Text(
-                  'תוצאה',
+                  'שיטת חישוב',
                   style: TextStyle(
-                    fontSize: 15.0,
+                    fontSize: 16.0,
                     fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.primary,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 16),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+                ),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.05),
@@ -1231,18 +1074,389 @@ class _MeasurementConverterScreenState
                   ),
                 ],
               ),
-              child: Text(
-                _resultController.text.isEmpty ? '---' : _resultController.text,
-                textAlign: TextAlign.right,
-                textDirection: TextDirection.ltr,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.primary,
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: _selectedOpinion,
+                  isExpanded: true,
+                  icon: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Icon(
+                      Icons.keyboard_arrow_down,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      size: 20,
+                    ),
+                  ),
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                  dropdownColor: Theme.of(context).colorScheme.surface,
+                  borderRadius: BorderRadius.circular(12),
+                  elevation: 8,
+                  menuMaxHeight: 300,
+                  items: opinions.map((String opinion) {
+                    return DropdownMenuItem<String>(
+                      value: opinion,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 4,
+                              height: 20,
+                              decoration: BoxDecoration(
+                                color: _selectedOpinion == opinion
+                                    ? Theme.of(context).colorScheme.primary
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                opinion,
+                                style: TextStyle(
+                                  fontWeight: _selectedOpinion == opinion
+                                      ? FontWeight.bold
+                                      : FontWeight.w500,
+                                  color: _selectedOpinion == opinion
+                                      ? Theme.of(context).colorScheme.primary
+                                      : Theme.of(context).colorScheme.onSurface,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    if (newValue != null) {
+                      setState(() {
+                        _selectedOpinion = newValue;
+                        _rememberedOpinions[_selectedCategory] = newValue;
+                        _convert();
+                      });
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        _screenFocusNode.requestFocus();
+                      });
+                    }
+                  },
+                  selectedItemBuilder: (BuildContext context) {
+                    return opinions.map<Widget>((String opinion) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.check_circle,
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 18,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                opinion,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList();
+                  },
                 ),
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+
+
+  Widget _buildInputField() {
+    return Card(
+      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Theme.of(context).colorScheme.surface,
+              Theme.of(context).colorScheme.surfaceContainerLow,
+            ],
+          ),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.tertiaryContainer,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    Icons.edit_outlined,
+                    color: Theme.of(context).colorScheme.onTertiaryContainer,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'ערך להמרה',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: TextField(
+                controller: _inputController,
+                focusNode: _inputFocusNode,
+                decoration: InputDecoration(
+                  hintText: 'הזן ערך למרה...',
+                  hintStyle: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                    fontSize: 16,
+                  ),
+                  filled: true,
+                  fillColor: Theme.of(context).colorScheme.surface,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.primary,
+                      width: 2,
+                    ),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
+                  prefixIcon: Container(
+                    margin: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      Icons.calculate,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      size: 20,
+                    ),
+                  ),
+                ),
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    _showResultField = value.isNotEmpty;
+                  });
+
+                  if (value.isNotEmpty) {
+                    _rememberedInputValues[_selectedCategory] = value;
+                  } else {
+                    _rememberedInputValues.remove(_selectedCategory);
+                  }
+                  _convert();
+                },
+                textDirection: TextDirection.ltr,
+                textAlign: TextAlign.right,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildResultDisplay() {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOutCubic,
+      child: Card(
+        elevation: 6,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Theme.of(context).colorScheme.primaryContainer,
+                Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.8),
+                Theme.of(context).colorScheme.secondaryContainer.withValues(alpha: 0.3),
+              ],
+              stops: const [0.0, 0.7, 1.0],
+            ),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                blurRadius: 12,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Theme.of(context).colorScheme.primary,
+                          Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                          blurRadius: 6,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      Icons.check_circle_outline,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      size: 22,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'תוצאת ההמרה',
+                          style: TextStyle(
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onPrimaryContainer,
+                          ),
+                        ),
+                        Text(
+                          'מ${_selectedFromUnit ?? ''} ל${_selectedToUnit ?? ''}',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Theme.of(context).colorScheme.onPrimaryContainer.withValues(alpha: 0.7),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                    width: 2,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.08),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        _resultController.text.isEmpty ? 'ממתין לערך...' : _resultController.text,
+                        textAlign: TextAlign.center,
+                        textDirection: TextDirection.ltr,
+                        style: TextStyle(
+                          fontSize: _resultController.text.isEmpty ? 16 : 24,
+                          fontWeight: _resultController.text.isEmpty ? FontWeight.w500 : FontWeight.bold,
+                          color: _resultController.text.isEmpty 
+                              ? Theme.of(context).colorScheme.onSurfaceVariant
+                              : Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                    if (_resultController.text.isNotEmpty)
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primaryContainer,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(
+                          Icons.done,
+                          color: Theme.of(context).colorScheme.onPrimaryContainer,
+                          size: 18,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
