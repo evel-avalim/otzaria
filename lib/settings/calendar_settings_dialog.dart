@@ -93,6 +93,38 @@ class _CalendarSettingsDialogState extends State<_CalendarSettingsDialog> {
                   const SizedBox(height: 24),
                   const Divider(),
                   const SizedBox(height: 16),
+                  const Text(
+                    'תצוגת לוח:',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  RadioGroup<CalendarView>(
+                    groupValue: state.calendarView,
+                    onChanged: (value) {
+                      if (value != null) {
+                        widget.calendarCubit.changeCalendarView(value);
+                      }
+                    },
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                        RadioListTile<CalendarView>(
+                          title: Text('חודש'),
+                          value: CalendarView.month,
+                        ),
+                        RadioListTile<CalendarView>(
+                          title: Text('שבוע'),
+                          value: CalendarView.week,
+                        ),
+                        RadioListTile<CalendarView>(
+                          title: Text('יום'),
+                          value: CalendarView.day,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  const Divider(),
+                  const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

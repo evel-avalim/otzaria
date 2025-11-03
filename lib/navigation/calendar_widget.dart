@@ -147,32 +147,6 @@ class CalendarWidget extends StatelessWidget {
   }
 
   Widget _buildCalendarHeader(BuildContext context, CalendarState state) {
-    Widget buildViewButton(CalendarView view, IconData icon, String tooltip) {
-      final bool isSelected = state.calendarView == view;
-      return Tooltip(
-        message: tooltip,
-        child: IconButton(
-          isSelected: isSelected,
-          icon: Icon(icon),
-          onPressed: () =>
-              context.read<CalendarCubit>().changeCalendarView(view),
-          style: IconButton.styleFrom(
-            // כאן אנו מגדירים את הריבוע הצבעוני סביב הכפתור הנבחר
-            foregroundColor:
-                isSelected ? Theme.of(context).colorScheme.primary : null,
-            backgroundColor: isSelected
-                ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.12)
-                : null,
-            side: isSelected
-                ? BorderSide(color: Theme.of(context).colorScheme.primary)
-                : BorderSide.none,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          ),
-        ),
-      );
-    }
-
     return Column(
       children: [
         // שורה עליונה עם כפתורים וכותרת
@@ -203,22 +177,6 @@ class CalendarWidget extends StatelessWidget {
             Wrap(
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                // כפתורים עם סמלים בלבד
-                buildViewButton(
-                    CalendarView.month, Icons.calendar_view_month, 'חודש'),
-                buildViewButton(
-                    CalendarView.week, Icons.calendar_view_week, 'שבוע'),
-                buildViewButton(
-                    CalendarView.day, Icons.calendar_view_day, 'יום'),
-
-                // קו הפרדה קטן
-                Container(
-                  height: 24,
-                  width: 1,
-                  color: Theme.of(context).dividerColor,
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                ),
-
                 // מעבר בין תקופות
                 IconButton(
                   onPressed: () => context.read<CalendarCubit>().previous(),
