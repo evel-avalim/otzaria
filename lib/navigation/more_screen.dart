@@ -21,6 +21,7 @@ class _MoreScreenState extends State<MoreScreen> {
   int _selectedIndex = 0;
   late final CalendarCubit _calendarCubit;
   late final SettingsRepository _settingsRepository;
+  late final PageController _pageController;
   final GlobalKey<GematriaSearchScreenState> _gematriaKey =
       GlobalKey<GematriaSearchScreenState>();
 
@@ -39,10 +40,12 @@ class _MoreScreenState extends State<MoreScreen> {
     super.initState();
     _settingsRepository = SettingsRepository();
     _calendarCubit = CalendarCubit(settingsRepository: _settingsRepository);
+    _pageController = PageController(initialPage: _selectedIndex);
   }
 
   @override
   void dispose() {
+    _pageController.dispose();
     _calendarCubit.close();
     super.dispose();
   }
@@ -69,9 +72,18 @@ class _MoreScreenState extends State<MoreScreen> {
           NavigationRail(
             selectedIndex: _selectedIndex,
             onDestinationSelected: (int index) {
-              setState(() {
-                _selectedIndex = index;
-              });
+              if (index != _selectedIndex && mounted) {
+                setState(() {
+                  _selectedIndex = index;
+                });
+                if (_pageController.hasClients) {
+                  _pageController.animateToPage(
+                    index,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
+                }
+              }
             },
             labelType: NavigationRailLabelType.all,
             destinations: const [
@@ -99,7 +111,29 @@ class _MoreScreenState extends State<MoreScreen> {
           ),
           const VerticalDivider(thickness: 1, width: 1),
           Expanded(
-            child: _buildCurrentWidget(_selectedIndex),
+            child: PageView(
+              controller: _pageController,
+              physics: const NeverScrollableScrollPhysics(),
+              onPageChanged: (index) {
+                if (mounted) {
+                  setState(() {
+                    _selectedIndex = index;
+                  });
+                }
+              },
+              children: [
+                BlocProvider.value(
+                  value: _calendarCubit,
+                  child: const CalendarWidget(),
+                ),
+                ShamorZachorWidget(
+                  onTitleChanged: _updateShamorZachorTitle,
+                ),
+                const MeasurementConverterScreen(),
+                const PersonalNotesManagerScreen(),
+                GematriaSearchScreen(key: _gematriaKey),
+              ],
+            ),
           ),
         ],
       ),
@@ -153,25 +187,5 @@ class _MoreScreenState extends State<MoreScreen> {
     }
   }
 
-  Widget _buildCurrentWidget(int index) {
-    switch (index) {
-      case 0:
-        return BlocProvider.value(
-          value: _calendarCubit,
-          child: const CalendarWidget(),
-        );
-      case 1:
-        return ShamorZachorWidget(
-          onTitleChanged: _updateShamorZachorTitle,
-        );
-      case 2:
-        return const MeasurementConverterScreen();
-      case 3:
-        return const PersonalNotesManagerScreen();
-      case 4:
-        return GematriaSearchScreen(key: _gematriaKey);
-      default:
-        return Container();
-    }
-  }
+
 }
