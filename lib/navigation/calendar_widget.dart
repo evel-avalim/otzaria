@@ -96,7 +96,11 @@ class CalendarWidget extends StatelessWidget {
         children: [
           _buildCalendar(context, state),
           const SizedBox(height: 16),
-          _buildEventsCard(context, state),
+          // במסך צר - אירועי היום
+          _buildTodayEventsCard(context, state),
+          const SizedBox(height: 16),
+          // במסך צר - חיפוש אירועים
+          _buildSearchEventsCard(context, state),
           const SizedBox(height: 16),
           _buildDayDetailsWithoutEvents(context, state),
         ],
@@ -1765,7 +1769,22 @@ class CalendarWidget extends StatelessWidget {
     );
   }
 
+  // מסך רחב - שני חלקים זה לצד זה
   Widget _buildEventsCard(BuildContext context, CalendarState state) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // צד ימין - אירועי היום הנבחר
+        Expanded(child: _buildTodayEventsCard(context, state)),
+        const SizedBox(width: 16),
+        // צד שמאל - חיפוש אירועים
+        Expanded(child: _buildSearchEventsCard(context, state)),
+      ],
+    );
+  }
+
+  // כרטיס אירועי היום
+  Widget _buildTodayEventsCard(BuildContext context, CalendarState state) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -1778,19 +1797,44 @@ class CalendarWidget extends StatelessWidget {
                 const Icon(Icons.event),
                 const SizedBox(width: 8),
                 const Text(
-                  'אירועים',
+                  'אירועי היום',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 const Spacer(),
-                ElevatedButton.icon(
+                IconButton.filled(
                   onPressed: () => _showCreateEventDialog(context, state),
-                  icon: const Icon(Icons.add, size: 16),
-                  label: const Text('צור אירוע'),
-                  style: ElevatedButton.styleFrom(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    textStyle: const TextStyle(fontSize: 12),
+                  icon: const Icon(Icons.add, size: 20),
+                  tooltip: 'צור אירוע',
+                  style: IconButton.styleFrom(
+                    padding: const EdgeInsets.all(8),
                   ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _buildTodayEventsList(context, state),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // כרטיס חיפוש אירועים
+  Widget _buildSearchEventsCard(BuildContext context, CalendarState state) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.search),
+                const SizedBox(width: 8),
+                const Text(
+                  'חיפוש אירועים',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -1835,6 +1879,136 @@ class CalendarWidget extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildTodayEventsList(BuildContext context, CalendarState state) {
+    final cubit = context.read<CalendarCubit>();
+    final events = cubit.eventsForDate(state.selectedGregorianDate);
+
+    if (events.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Text(
+            'אין אירועים ליום זה',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: events.length,
+      itemBuilder: (context, index) {
+        final event = events[index];
+        return Container(
+          margin: const EdgeInsets.only(bottom: 8),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Theme.of(context).primaryColor.withAlpha(25),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: Theme.of(context).primaryColor.withAlpha(76),
+            ),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      event.title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                    if (event.description.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        event.description,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                    if (event.recurring) ...[
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.repeat,
+                            size: 12,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            event.recurOnHebrew
+                                ? 'חוזר לפי לוח עברי'
+                                : 'חוזר לפי לוח לועזי',
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.edit, size: 20),
+                    tooltip: 'ערוך אירוע',
+                    onPressed: () => _showCreateEventDialog(context, state,
+                        existingEvent: event),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete, size: 20),
+                    tooltip: 'מחק אירוע',
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (dialogContext) => AlertDialog(
+                          title: const Text('אישור מחיקה'),
+                          content: Text(
+                              'האם אתה בטוח שברצונך למחוק את האירוע "${event.title}"?'),
+                          actions: [
+                            TextButton(
+                              child: const Text('ביטול'),
+                              onPressed: () =>
+                                  Navigator.of(dialogContext).pop(),
+                            ),
+                            TextButton(
+                              child: const Text('מחק'),
+                              onPressed: () {
+                                context
+                                    .read<CalendarCubit>()
+                                    .deleteEvent(event.id);
+                                Navigator.of(dialogContext).pop();
+                              },
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              )
+            ],
+          ),
+        );
+      },
     );
   }
 
