@@ -10,7 +10,7 @@
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{EEC4F712-CD05-4D15-A753-509E840A51A5}
+AppId={{EEC4F712-CD05-4D15-A753-509E840A51A5}}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 ;AppVerName={#MyAppName} {#MyAppVersion}
@@ -25,7 +25,7 @@ DisableProgramGroupPage=yes
 ;PrivilegesRequired=lowest
 OutputDir=installer
 OutputBaseFilename=otzaria-{#MyAppVersion}-windows-full
-SetupIconFile=installer\white_sketch128x128.ico
+SetupIconFile=white_sketch128x128.ico
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
