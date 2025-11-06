@@ -181,7 +181,7 @@ class _ShamorZachorMainScreenState extends State<ShamorZachorMainScreen>
       case 1:
         return 'ספרים';
       default:
-        return 'שמור וזכור';
+        return 'זכור ושמור';
     }
   }
 
